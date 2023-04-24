@@ -126,7 +126,7 @@ python eval_humaneval.py --prediction_dir path/to/prediction/directory
 
 `n = NUM_ITERATIONS * batch_size * num_return_sequences`, where `n` is used to estimate `pass@k` as in the [Codex](https://arxiv.org/pdf/2107.03374.pdf) paper.
 
-$${pass@k} = \underset{\text { Problems }}{\mathbb{E}}\left[1-\frac{\left(\begin{array}{c} n-c \\ k \end{array}\right)}{\left(\begin{array}{l} n \\ k \end{array}\right)}\right]$$
+$${pass@k} = \underset{\text { Problems }}{\mathbb{E}}\left[1-\frac{C^{k}_{n-c}}{C^{k}_{n}}\right]$$
 
 Here we choose `n = 200` as employed in the paper.
 
