@@ -3,7 +3,7 @@
 </p>
 
 
-# Introducing CodeCapybara: Open Source LLaMA Model that Follow Instruction-Tuning for Code Generation.
+# CodeCapybara: Open Source LLaMA Model that Follow Instruction-Tuning for Code Generation.
 
 We introduce CodeCapybara - A Code specialized Instruction-following Large Language Model. This repo also attempts to evaluate and reproduce performance results of existing LLMs for code, such as Llama, Alpaca and CodeAlpaca for code generation benchmarks (HumanEval and MBPP).
 
