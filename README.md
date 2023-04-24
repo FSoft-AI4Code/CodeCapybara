@@ -18,10 +18,10 @@ We introduce CodeCapybara - A Code specialized Instruction-following Large Langu
 
 ## Overview
 We follow several recent techniques of instruction tuning to collect data and train an instruction-following model with ability to generate executable code from human language description.
+
 We can divide our process for training CodeyCapybara into two steps:
 1. **Data Collection**: We mainly follow Self-Instruct to collect data generated through OpenAI ChatGPT as well as code generation supervised dataset.
 2. **Instruction Tuning**: We fine-tune our model from MetaAI's LLaMA checkpoint with parameter-efficient fine-tuning methods.
-What can this model do?
 
 ### Data Collection
 In this stage, we follow previous works to collect instruction data. To ensure the quality of the code data used in the fine-tuning stage, we make some modifications from data Self-Instruct data generation procedure.
@@ -33,12 +33,24 @@ In this stage, we follow previous works to collect instruction data. To ensure t
 | **Total**| **53,924**|
 
 #### Only Instruction Generation
-To ensure the code quality, which will be later used as target in the fine-tuning step,  we leverage an unsupervised dataset that only contains code snippets crawled from open-sources. We then design a prompt to ask ChatGPT to generate a corresponding instruction for each code snippet. In other words, to obtain a pair (Instruction-Output), we ask ChatGPT to generate the instruction given the output as human written code snippet. Our template can be found [here](./data/prompts/prompt.py),
+To ensure the code quality, which will be later used as target in the fine-tuning step,  we leverage an unsupervised dataset that only contains code snippets crawled from open-sources. We then design a prompt to ask ChatGPT to generate a corresponding instruction for each code snippet. In other words, to obtain a pair (Instruction-Output), we ask ChatGPT to generate the instruction given the output as human written code snippet.
+
+Our unsupervised dataset contains code functions that covers a wide range of programming problem in 10 programming languages, i.e `Python, Javascript, Java, Golang, Ruby, Rust, PHP, C, C++, C#`
+
+We obtains our dataset through `gpt-3.5-turbo` OpenAI API. Each instruction-output pair is generated through 2 rounds of API calling.
+	- In 1st round, we include a code function (i.e output) in the prompt, and ask `gpt-3.5-turbo` to generate a corresponding instruction.
+	- In 2nd round, since the code function does not guarantee an executable program, we include both 1st round generated instruction and code function to a new prompt and ask model to generate an executable program with libraries imported and dependencies implementation along with the given code function.
+ 
+- Our prompt template can be found [here](./data/prompts/prompt.py).
+- Our script for 2 rounds data generation can be found [here](./data_generation/data_generation.py).
 #### [Code Alpaca]()
-For the second source of data, we follow [Self-Instruct](https://arxiv.org/abs/2212.10560) paper to generate various code problems in the format of (Instruction-Input-Output) data from a seed dataset.
-We reuse the generated instruction data from [CodeAlpaca](https://github.com/sahil280114/codealpaca/blob/master/data/code_alpaca_20k.json) to reduce API calling cost.
+For the second source of data, our intention is to follow [Self-Instruct](https://arxiv.org/abs/2212.10560) paper to completely generate various code problems in the format of (Instruction-Input-Output) data from a seed dataset.
+
+We reuse the generated instruction data from [CodeAlpaca](https://github.com/sahil280114/codealpaca/blob/master/data/code_alpaca_20k.json) to reduce API calling cost since what they did is similar to our purpose.
 #### [DeepMind's Code Contests]()
-We also leverage the supervised code generation dataset. There are various code generation dataset with high quality and quantity, such as APPS train split (), MBPP train split (500 datapoints). In this 1st version, we select [DeepMind's Code Contests] dataset, which contains competitive programming problems with detailed description and test cases.
+We also leverage the supervised code generation dataset. There are various code generation dataset with high quality and quantity, such as APPS (5,000 datapoints in train split), MBPP (500 datapoints in train split).
+
+In this version, we select [DeepMind's Code Contests] dataset, which contains competitive programming problems with detailed description and test cases. The train split we employ to fine-tune our model contains approximately 13,000 datapoints.
 ### Instruction Tuning
 We tried 2 approaches to fine-tune LLaMA-7B checkpoint on the collected data, including:
 - Full-parameter fine-tuning
@@ -142,7 +154,7 @@ python eval_mbpp.py --prediction_dir path/to/prediction/directory
 Feel free to cite us
 ```bibtex
 @misc{codecapybara,
-	title = {Codecapybara: Code Instruction Tuning},
+	title = {CodeCapybara: Code Instruction Tuning},
 	author = {},
 	year = {2023},
 }
