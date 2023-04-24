@@ -1,6 +1,6 @@
 # CodeCapybara: Code Instruction Tuning
 
-We introduce CodeCapybara - A Code specialized Instruction-following Large Language Model.
+We introduce CodeCapybara - A Code specialized Instruction-following Large Language Model. This repo also attempts to evaluate and reproduce performance results of Instruction-following Large Language Models (LLM) on code generation benchmarks.
 
 ## Table of Contents
 
@@ -33,16 +33,16 @@ In this stage, we follow previous works to collect instruction data. To ensure t
 | **Total**| **53,924**|
 
 #### Only Instruction Generation
-To ensure the code quality, which will be later used as target in the fine-tuning step,  we leverage an unsupervised dataset that only contains code snippets crawled from open-sources. We then design a prompt to ask ChatGPT to generate a corresponding instruction for each code snippet. In other words, to obtain a pair (Instruction-Output), we ask ChatGPT to generate the instruction given the output as human written code snippet.
+To ensure the code quality for later use as targets in the fine-tuning step,  we leverage an unsupervised dataset that only contains code snippets crawled from open-sources. We then design a prompt to ask `gpt-3.5-turbo` to generate a corresponding instruction for each code snippet. In other words, to obtain a pair (instruction-output), we ask `gpt-3.5-turbo` to generate the instruction given the output as human written code snippet.
 
 Our unsupervised dataset contains code functions that covers a wide range of programming problem in 10 programming languages, i.e `Python, Javascript, Java, Golang, Ruby, Rust, PHP, C, C++, C#`
 
-We obtains our dataset through `gpt-3.5-turbo` OpenAI API. Each instruction-output pair is generated through 2 rounds of API calling.
-	- In 1st round, we include a code function (i.e output) in the prompt, and ask `gpt-3.5-turbo` to generate a corresponding instruction.
-	- In 2nd round, since the code function does not guarantee an executable program, we include both 1st round generated instruction and code function to a new prompt and ask model to generate an executable program with libraries imported and dependencies implementation along with the given code function.
+We obtain our dataset through `gpt-3.5-turbo` OpenAI API. Each instruction-output pair is generated through 2 rounds of API calling.
+- In 1st round, we include a code function (i.e output) in the prompt, and ask `gpt-3.5-turbo` to generate a corresponding instruction.
+- In 2nd round, since the code function does not guarantee an executable program, we include both 1st round generated instruction and code function to a new prompt and ask the model to generate an executable program with libraries imported and dependencies implementation along with the given code function.
  
 - Our prompt template can be found [here](./data/prompts/prompt.py).
-- Our script for 2 rounds data generation can be found [here](./data_generation/data_generation.py).
+- Our script for 2 rounds of data generation can be found [here](./data_generation/data_generation.py).
 
 #### [Code Alpaca](https://github.com/sahil280114/codealpaca)
 For the second source of data, our intention is to follow [Self-Instruct](https://arxiv.org/abs/2212.10560) paper to completely generate various code problems in the format of (Instruction-Input-Output) data from a seed dataset.
@@ -100,6 +100,8 @@ To evaluate checkpoints on HumanEval or MBPP benchmark, navigate to `main/`
 cd main/
 ```
 
+We use nucleus sampling for sampling next-token in each prediction step to generate multiple difference code outputs for each problem. Hyperparameter configuration used for our evaluation is specified in the command below.
+
 ### HumanEval
 The first part of the below command generates multiple `.jsonl` files, which will be saved into `path/to/prediction/directory` by inference the model. The command follows after taking predictions as input to calculate pass@k.
 ```bash
@@ -117,7 +119,10 @@ do
         --lora_weights '' \
         --batch_size 1 \
         --num_return_sequences 20 \
-        --load_8bit True
+        --load_8bit True \
+        --temperature 0.1 \
+        --top_p 0.75 \
+        --top_k 40
 done
 
 # Calculating pass@k with k=1,10,100
@@ -128,7 +133,10 @@ python eval_humaneval.py --prediction_dir path/to/prediction/directory
 
 $${pass@k} = \underset{\text { Problems }}{\mathbb{E}}\left[1-\frac{C^{k}_{n-c}}{C^{k}_{n}}\right]$$
 
-Here we choose `n = 200` as employed in the paper.
+Here we choose `n = 200` as employed in the paper, which results in
+- `NUM_ITERATIONS=10`
+- `batch_size=1`
+- `num_return_sequences=20`
 
 ### MBPP
 Replacing the `humaneval` by `mbpp`
@@ -147,7 +155,10 @@ do
         --lora_weights '' \
         --batch_size 1 \
         --num_return_sequences 20 \
-        --load_8bit True
+        --load_8bit True \
+        --temperature 0.1 \
+        --top_p 0.75 \
+        --top_k 40
 done
 
 # Calculating pass@k with k=1,10,80,100
