@@ -4,23 +4,33 @@ We introduce CodeCapypara - A Code specialized Instruction-following Large Langu
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Results](#results)
-- [Data Release]()
-- [Checkpoint Release]()
-- [Installation](#installation)
-- [Instruction Tuning](#instruction-tuning)
-- [Benchmarking](#benchmarking)
-- [Future Plans](future-plan)
-- [Contributing](#contributing)
-- [Example Outputs](#example-outputs)
-- [License](#license)
+- [CodeCapypara: Code Instruction Tuning](#codecapypara-code-instruction-tuning)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+    - [Data Collection](#data-collection)
+      - [Only Instruction Generation](#only-instruction-generation)
+      - [Code Alpaca](#code-alpaca)
+      - [DeepMind's Code Contests](#deepminds-code-contests)
+    - [Instruction Tuning](#instruction-tuning)
+  - [Results](#results)
+    - [HumanEval](#humaneval)
+    - [MBPP](#mbpp)
+  - [Data Release](#data-release)
+  - [Checkpoint Release](#checkpoint-release)
+  - [Installation](#installation)
+  - [Instruction Tuning](#instruction-tuning-1)
+  - [Benchmarking](#benchmarking)
+    - [HumanEval](#humaneval-1)
+    - [MBPP](#mbpp-1)
+  - [Future Plans](#future-plans)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Overview
 We follow several recent techniques of instruction tuning to collect data and train an instruction-following model with ability to generate executable code from human language description.
 We can divide our process for training CodeCapypara into two steps:
-1. **Data Collection**: We mainly follow Self-Instruct to collect data generated through OpenAI ChatGPT as well as code generation supervised dataset.
-2. **Instruction Tuning**: We fine-tune our model from MetaAI's LLaMA checkpoint with parameter-efficient fine-tuning methods.
+1. **Data Collection**: We mainly follow Self-Instruct to collect data generated through OpenAI ChatGPT as well as supervised code generation dataset.
+2. **Instruction Tuning**: We fine-tune MetaAI's LLaMA checkpoint with all the parameters or parameter-efficient fine-tuning methods.
 
 ### Data Collection
 In this stage, we follow previous works to collect instruction data. To ensure the quality of the code data used in the fine-tuning stage, we make some modifications from data Alpaca's data generation procedure.
@@ -43,7 +53,7 @@ We tried 2 approaches to fine-tune LLaMA-7B checkpoint on the collected data, in
 - Full-parameter fine-tuning
 - HuggingFace's PEFT, same as [AlpacaLoRA](https://github.com/tloen/alpaca-lora#readme)
 ## Results
-We evaluate our models as well as reproducing other models' results on 2 benchmarks, HumanEval and MBPP. All numbers are reported with zero-shot inference.
+We evaluate our models as well as reproduce other models' results on 2 benchmarks, HumanEval and MBPP. All numbers are reported in zero-shot settings.
 ### HumanEval
 | Model |Base checkpoint | pass@1 | pass@10 | pass@100 |
 | - | - | - | -  | - |
@@ -61,7 +71,7 @@ We evaluate our models as well as reproducing other models' results on 2 benchma
 | CodeCapypara| | | | |
 
 ## Data Release
-
+You can find our used datasets in the folder `data/raw-data`, namely `code_alpaca_20k.json` (from CodeAlpaca) and `generated_data.jsonl` (our own dataset).
 ## Checkpoint Release
 
 ## Installation
@@ -72,8 +82,29 @@ conda activate codecapypara
 ```
 
 ## Instruction Tuning
+We support 2 settings to fine-tune LLaMA models. In the first setting, we refine all the parameters using Fully Sharded Data Parallel, and for the rest, we currently utilize LoRA to adapt the models to the instruction tuning task. You can easily run such settings by the command
 ```bash
+    bash scripts/train.sh
 ```
+which calls `main/train.py`. We also provide some arguments to customize the training process
+- --train-batch-size: batch-size of each gpu for training
+- --val-batch-size: batch-size of each gpu for validating
+- --num-workers: number of workers in the DataLoader
+- --config-path: the path of the configuration file. We provide a template in the folder `configs`
+- --model-type: setting's used to fine-tune. There are 2 valid values: `fine-tunning` and `lora`.
+- --use-wandb: 0 if you don't use *wandb* for logging; otherwise, wandb is used.
+Moreover, you can edit the configuration file `configs/config.yml` which contains some notable fields:
+- checkpoint
+  - dir: the folder contains all the checkpoints
+  - old_checkpoint: the path of the old checkpoint. If it is null, the model'll train from scratch; otherwise, it continues training from this checkpoint.
+  - epochs: the number of epochs between 2 consecutive model saves.
+- epochs: number of epochs for training
+- model:
+  - hf_model: LLaMA model in HuggingFace format
+  - lora: settings for LoRA method
+- optimizer: specify optimizer
+- scheduler: configurate the hypermeters for a warm-up learning-rate schedule
+- max-seq-length: maximum length of the instruction and the response.
 ## Benchmarking
 To evaluate checkpoints on HumanEval or MBPP benchmark, navigate to `main/`
 ```bash

@@ -68,7 +68,7 @@ def parse_args():
     ap.add_argument('--train-batch-size', default = 10, type = int)
     ap.add_argument('--val-batch-size', default = 10, type = int)
     ap.add_argument('--num-workers', default = 0, type = int)
-    ap.add_argument('--model-type', type = str)
+    ap.add_argument('--model-type', type = str, choices = ['fine-tuning', 'lora'])
     ap.add_argument('--use-wandb', type = int, default = 1)
     return ap.parse_args()
 
