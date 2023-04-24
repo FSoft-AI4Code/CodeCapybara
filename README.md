@@ -60,12 +60,9 @@ We tried 2 approaches to fine-tune LLaMA-7B checkpoint on the collected data, in
 - HuggingFace's PEFT, same as [AlpacaLoRA](https://github.com/tloen/alpaca-lora#readme)
 
 ## Results
-<<<<<<< HEAD
-We evaluate our models as well as reproduce other models' results on 2 benchmarks, HumanEval and MBPP. All numbers are reported in zero-shot settings.
-=======
-We evaluate our models as well as reproducing other models' results on 2 benchmarks, HumanEval and MBPP. All numbers are reported with zero-shot inference.
 
->>>>>>> 9de7f7ff90e4446588e0bad084f423367bea68d9
+We evaluate our models as well as reproduce other models' results on 2 benchmarks, HumanEval and MBPP. All numbers are reported in zero-shot settings.
+
 ### HumanEval
 | Model |Base checkpoint | pass@1 | pass@10 | pass@100 |
 | - | - | - | -  | - |
@@ -99,7 +96,7 @@ We support 2 settings to fine-tune LLaMA models. In the first setting, we refine
 ```bash
     bash scripts/train.sh
 ```
-<<<<<<< HEAD
+
 which calls `main/train.py`. We also provide some arguments to customize the training process
 - --train-batch-size: batch-size of each gpu for training
 - --val-batch-size: batch-size of each gpu for validating
@@ -119,9 +116,7 @@ Moreover, you can edit the configuration file `configs/config.yml` which contain
 - optimizer: specify optimizer
 - scheduler: configurate the hypermeters for a warm-up learning-rate schedule
 - max-seq-length: maximum length of the instruction and the response.
-=======
 
->>>>>>> 9de7f7ff90e4446588e0bad084f423367bea68d9
 ## Benchmarking
 To evaluate checkpoints on HumanEval or MBPP benchmark, navigate to `main/`
 ```bash
