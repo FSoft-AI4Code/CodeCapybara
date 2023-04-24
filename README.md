@@ -2,11 +2,11 @@
 
 We introduce CodeCapybara - A Code specialized Instruction-following Large Language Model. This repo also attempts to evaluate and reproduce performance results of existing LLMs for code, such as Llama, Alpaca and CodeAlpaca for code generation benchmarks (HumanEval and MBPP).
 
-- First attempt to reproduce of LLaMA results on widely recognized Code Generation benchmarks
+- ***First attempt to reproduce of LLaMA results*** on widely recognized Code Generation benchmarks
 - CodeCapybara is fine-tuned from Llama 7B. Larger models will be available soon.
-- We use our own dataset in larger scale and more diverse to fine-tune Llama under an instruction-tuning style.
-- Improved evaluation results on HumanEval in comparison to LLaMA, Alpaca and CodeAlpaca
-- Full transparency with open source availability: all scripts and models are accessible to the community
+- We use ***our own dataset in larger scale and more diverse*** to fine-tune Llama under an instruction-tuning style.
+- ***Improved evaluation results on HumanEval*** in comparison to LLaMA, Alpaca and CodeAlpaca.
+- Full transparency with open source availability: ***all scripts and models are accessible to the community***.
 We encourage you to contribute to CodeCapybara and help advance the field of code generation. 
 
 ## Table of Contents
