@@ -1,5 +1,5 @@
 <p align="center" width="100%">
-<a  target="_blank"><img src="assets/logo.png" alt="Code-Capybara" style="width: 50%; min-width: 300px; display: block; margin: auto;"></a>
+<a  target="_blank"><img src="assets/logo.png" alt="Code-Capybara" style="width: 80%; min-width: 500px; display: block; margin: auto;"></a>
 </p>
 
 
