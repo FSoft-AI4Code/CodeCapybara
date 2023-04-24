@@ -73,12 +73,7 @@ We evaluate our models as well as reproduce other models' results on 2 benchmark
 | CodeCapybara |  | **11.10** | **13.33** | **13.41** |
 
 ### MBPP
-| Model |Base checkpoint | pass@1 | pass@10 | pass@100 |
-| ------- | ----| ------- | ------- | -------|
-| LLaMA |  decapoda-research/llama-7b-hf | **17.97** | **21.96**| **23.13**|
-| Alpaca-LoRA |  decapoda-research/llama-7b-hf | 12.73 | 15.92 | 16.87 |
-| CodeCapybara-LoRa |  decapoda-research/llama-7b-hf | 13.11| 17.85| 19.22 |
-| CodeCapybara| | | | |
+
 
 ## Data Release
 You can find our used datasets in the folder `data/raw-data`, namely `code_alpaca_20k.json` (from CodeAlpaca) and `generated_data.jsonl` (our own dataset).
