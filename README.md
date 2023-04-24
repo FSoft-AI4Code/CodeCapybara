@@ -1,4 +1,13 @@
-# Introducing CodeCapybara: Open Source LLaMA Model that Follow Instruction-Tuning for Code Generation.
+<p align="center" width="100%">
+<a  target="_blank"><img src="assets/logo.png" alt="Code-Capybara" style="width: 50%; min-width: 300px; display: block; margin: auto;"></a>
+</p>
+
+
+# CodeCapybara: Open Source LLaMA Model that Follow Instruction-Tuning for Code Generation.
+[![Code License](https://img.shields.io/badge/Code%20License-Apache_2.0-green.svg)](https://github.com/AI4Code-Research/CodeCapybara/blob/main/LICENSE)
+[![Data License](https://img.shields.io/badge/Data%20License-CC%20By%20NC%204.0-red.svg)](https://github.com/AI4Code-Research/CodeCapybara/blob/main/DATA_LICENSE)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/release/python-390/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 We introduce CodeCapybara - A Code specialized Instruction-following Large Language Model. This repo also attempts to evaluate and reproduce performance results of existing LLMs for code, such as Llama, Alpaca and CodeAlpaca for code generation benchmarks (HumanEval and MBPP).
 
