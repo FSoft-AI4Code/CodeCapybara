@@ -19,8 +19,8 @@ def load_model(model_path: str, tokenizer_path: str, load_8bit: bool = False):
     return tokenizer, generator
 
 def main(
-        model_path: str = '/datadrive/minhnh46/codecmal/cp1/cp1/cp1/llama-7b/',
-        tokenizer_path: str = '/datadrive/minhnh46/codecmal/cp1/cp1/cp1/tokenizer/',
+        model_path: str,
+        tokenizer_path: str,
         load_8bit: bool = False
 ):
     global total_queries
@@ -83,8 +83,8 @@ def main(
                 label="Output",
             )
         ],
-        title= "CodeCamel",
-        description="Our demonstration for CodeCamel. CodeCamel is fine-tuned from LLaMA on our curated dataset.",  # noqa: E501
+        title= "CodeCapybara",
+        description="Our demonstration for CodeCapybara. CodeCapybara is fine-tuned from LLaMA on our curated dataset.",  # noqa: E501
     ).queue().launch(server_name="localhost", share = True)
 if __name__ == "__main__":
     fire.Fire(main)
