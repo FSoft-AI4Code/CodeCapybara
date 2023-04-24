@@ -1,0 +1,35 @@
+checkpoint: 
+  dir: checkpoints/llama-tuning/
+  old_checkpoint: 
+  epochs: 1
+clip_gradient: null
+datasets:
+  - code-contest:
+  - codealpaca: data/raw-data/code_alpaca_20k.json
+  - codecapybara: data/raw-data/generated_data.jsonl
+early_stopping:
+  patience: 20
+epochs: 5
+model:
+  hf_model: huggyllama/llama-7b
+  lora:
+    r: 8
+    alpha: 16
+    dropout: 0.5
+    target_modules:
+      - q_proj
+      - v_proj
+log:
+  dir: logs
+  file: log
+optimizer:
+  name: AdamW
+  params:
+    lr: 2.0e-5
+scheduler:
+  num_warmup_steps: 1000
+  num_training_epochs: 5
+wandb:
+  project: LLaMA-all-data
+  name: fine-tune
+max_seq_length: 1000

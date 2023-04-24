@@ -1,0 +1,10 @@
+__pycache__/
+output_dir/
+haha/
+checkpoints/
+logs/
+env/
+wandb/
+LLaMA-7B/
+*.jsonl
+*.json
