@@ -1,6 +1,6 @@
-# CodeCapypara: Code Instruction Tuning
+# CodeCapybara: Code Instruction Tuning
 
-We introduce CodeCapypara - A Code specialized Instruction-following Large Language Model.
+We introduce CodeCapybara - A Code specialized Instruction-following Large Language Model.
 
 ## Table of Contents
 
@@ -18,12 +18,13 @@ We introduce CodeCapypara - A Code specialized Instruction-following Large Langu
 
 ## Overview
 We follow several recent techniques of instruction tuning to collect data and train an instruction-following model with ability to generate executable code from human language description.
-We can divide our process for training CodeCapypara into two steps:
+We can divide our process for training CodeyCapybara into two steps:
 1. **Data Collection**: We mainly follow Self-Instruct to collect data generated through OpenAI ChatGPT as well as code generation supervised dataset.
 2. **Instruction Tuning**: We fine-tune our model from MetaAI's LLaMA checkpoint with parameter-efficient fine-tuning methods.
+What can this model do?
 
 ### Data Collection
-In this stage, we follow previous works to collect instruction data. To ensure the quality of the code data used in the fine-tuning stage, we make some modifications from data Alpaca's data generation procedure.
+In this stage, we follow previous works to collect instruction data. To ensure the quality of the code data used in the fine-tuning stage, we make some modifications from data Self-Instruct data generation procedure.
 | Data source | No. samples |
 |-|-|
 |CodeAlpaca| 20,022 |
@@ -32,7 +33,7 @@ In this stage, we follow previous works to collect instruction data. To ensure t
 | **Total**| **53,924**|
 
 #### Only Instruction Generation
-To ensure the code quality, which will be later used as target in the fine-tuning step,  we leverage an unsupervised dataset that only contains code snippets crawled from open-sources. We then design a prompt to ask ChatGPT to generate a corresponding instruction with each code snippet. In other words, to obtain a pair (Instruction-Output), we ask ChatGPT to generate the instruction given the output as human written code snippet. Our template can be found [here](./data/prompts/prompt.py),
+To ensure the code quality, which will be later used as target in the fine-tuning step,  we leverage an unsupervised dataset that only contains code snippets crawled from open-sources. We then design a prompt to ask ChatGPT to generate a corresponding instruction for each code snippet. In other words, to obtain a pair (Instruction-Output), we ask ChatGPT to generate the instruction given the output as human written code snippet. Our template can be found [here](./data/prompts/prompt.py),
 #### [Code Alpaca]()
 For the second source of data, we follow [Self-Instruct](https://arxiv.org/abs/2212.10560) paper to generate various code problems in the format of (Instruction-Input-Output) data from a seed dataset.
 We reuse the generated instruction data from [CodeAlpaca](https://github.com/sahil280114/codealpaca/blob/master/data/code_alpaca_20k.json) to reduce API calling cost.
@@ -49,16 +50,16 @@ We evaluate our models as well as reproducing other models' results on 2 benchma
 | - | - | - | -  | - |
 | LLaMA |  decapoda-research/llama-7b-hf | 10.70| 13.29 | **13.41** |
 | LLaMA |  |9.7  | 12.66| 12.80 |
-| Alpaca-LoRA |  decapoda-research/llama-7b-hf | 7.56 | 9.14|9.15 |
-| CodeCapypara-LoRa |  decapoda-research/llama-7b-hf | 9.61 | 11.62 | 12.02 |
-| CodeCapypara |  | **11.10** | **13.33** | **13.41** |
+| Alpaca-LoRA |  decapoda-research/llama-7b-hf | 8.00 | 10.00 | 10.37|
+| Codecapybara-LoRa |  decapoda-research/llama-7b-hf | 9.61 | 11.62 | 12.02 |
+| Codecapybara |  | **11.10** | **13.33** | **13.41** |
 ### MBPP
 | Model |Base checkpoint | pass@1 | pass@10 | pass@100 |
 | ------- | ----| ------- | ------- | -------|
 | LLaMA |  decapoda-research/llama-7b-hf | **17.97** | **21.96**| **23.13**|
 | Alpaca-LoRA |  decapoda-research/llama-7b-hf | 12.73 | 15.92 | 16.87 |
-| CodeCapypara-LoRa |  decapoda-research/llama-7b-hf | 13.11| 17.85| 19.22 |
-| CodeCapypara| | | | |
+| Codecapybara-LoRa |  decapoda-research/llama-7b-hf | 13.11| 17.85| 19.22 |
+| Codecapybara| | | | |
 
 ## Data Release
 
@@ -67,8 +68,8 @@ We evaluate our models as well as reproducing other models' results on 2 benchma
 ## Installation
 
 ```bash
-conda create -n codecapypara -y
-conda activate codecapypara
+conda create -n codecapybara -y
+conda activate codecapybara
 ```
 
 ## Instruction Tuning
@@ -140,8 +141,8 @@ python eval_mbpp.py --prediction_dir path/to/prediction/directory
 
 Feel free to cite us
 ```bibtex
-@misc{codecapypara,
-	title = {CodeCapypara: Code Instruction Tuning},
+@misc{codecapybara,
+	title = {Codecapybara: Code Instruction Tuning},
 	author = {},
 	year = {2023},
 }
