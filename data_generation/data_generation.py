@@ -51,7 +51,6 @@ def encode_prompt(code_snippets, instructions, mode):
                 requirement = requirement.format(min_length=min_length,max_length=max_length)
             requirement_str += f"{idx + 1}. {requirement}\n"
         prompt = template.format(requirements=requirement_str.strip(), num_code_snippets=num_code_snippets)
-        # print(prompt)
         for idx, code_snippet in enumerate(code_snippets):
             code_snippet = code_snippet.strip()
             prompt += f"Code snippet {idx + 1}:\n"
@@ -81,10 +80,7 @@ def encode_prompt(code_snippets, instructions, mode):
     return prompt
 
 def load_data(data_dir, num_examples):
-    if "CodeXGLUE" in data_dir:
-        languages = ["python", "go", "java", "javascript", "ruby", "php"]
-    else:
-        languages = ["python", "go", "java", "javascript", "ruby", "php", "c", "cpp", "csharp", "rust"]
+    languages = ["python", "go", "java", "javascript", "ruby", "php", "c", "cpp", "csharp", "rust"]
     data = dict()
     progress_bar = tqdm(total=8e6)
     idx = 0
@@ -168,37 +164,12 @@ def one_call(examples: OrderedDict[dict[str, str]], decoding_kwargs):
             ex["pass_2nd_reason"] = "not_pass_1st"
         return examples, call_1st_responses, call_2nd_responses, num_requests
     # 1st round
-    # print("1st round")
     while True:
         try:
-            if 1:
-                response_1st = openai.ChatCompletion.create(messages=messages,
-                                                            **decoding_kwargs,
-                                                            # **shared_kwargs
-                                                            )
-            else:
-                response_1st = {
-                  "choices": [
-                    {
-                      "finish_reason": "stop",
-                      "index": 0,
-                      "message": {
-                        "content": "Write a PHP function that determines whether the given $entity is the last element in the given $result. The function should return a boolean value. If the $result is empty or contains only one element that is equal to $entity, the function should return true. Otherwise, it should return false. \n\nProblem statement 2: \nImplement a PHP function that calculates the total amount of tax for an order. The function should return an integer value. It should iterate through each adjustment of type \"tax\" and add up the amounts. Additionally, it should iterate through each item in the order and recursively call itself to calculate the tax for each item. \n\nProblem statement 3:\nCreate a protected PHP function that recalculates the total amount of an order. The function should update the \"total\" value of the order object by adding the values of \"unitsTotal\" and \"adjustmentsTotal\". If the resulting total amount is negative, it should be set to 0. If the order object has been assigned to the \"order\" property of the current object, the function should also call the \"recalculateItemsTotal\" method of the order object.",
-                        "role": "assistant"
-                      }
-                    }
-                  ],
-                  "created": 1680700427,
-                  "id": "chatcmpl-71xFLudkou0wUFSZ0WdmGYmKvGNvg",
-                  "model": "gpt-3.5-turbo-0301",
-                  "object": "chat.completion",
-                  "usage": {
-                    "completion_tokens": 232,
-                    "prompt_tokens": 604,
-                    "total_tokens": 836
-                  }
-                }
-            # print(response_1st)
+            response_1st = openai.ChatCompletion.create(messages=messages,
+                                                        **decoding_kwargs,
+                                                        # **shared_kwargs
+                                                        )
             break
         except openai.error.OpenAIError as e:
             logging.warning(f"OpenAIError: {e}.")
@@ -209,7 +180,6 @@ def one_call(examples: OrderedDict[dict[str, str]], decoding_kwargs):
             else:
                 logging.warning("Hit request rate limit; retrying...")
                 time.sleep(sleep_time)  # Annoying rate limit on requests.
-                # 01000011011011110110010001100101011100100100100001101111011101010111001101100101
 
     response_1st.update({"data_ids": example_ids})
     call_1st_responses.append(response_1st)
@@ -224,7 +194,6 @@ def one_call(examples: OrderedDict[dict[str, str]], decoding_kwargs):
             })
 
     # 2nd round
-    # print("2nd round")
     for ex_id, ex in examples.items():
         if not ex["pass_1st"]:
             ex["pass_2nd"] = False
@@ -244,13 +213,8 @@ def one_call(examples: OrderedDict[dict[str, str]], decoding_kwargs):
             continue
         while True:
             try:
-                if 1:
-                    response_2nd = openai.ChatCompletion.create(messages=messages,
+                response_2nd = openai.ChatCompletion.create(messages=messages,
                                                                 **decoding_kwargs)
-                else:
-                    response_2nd = {'choices': [{'finish_reason': 'stop', 'index': 0, 'message': {'content': 'Write a PHP function that determines whether the given $entity is the last element in the given $result. The function should return a boolean value. If the $result is empty or contains only one element that is equal to $entity, the function should return true. Otherwise, it should return false. \n\nProblem statement 2: \nImplement a PHP function that calculates the total amount of tax for an order. The function should return an integer value. It should iterate through each adjustment of type "tax" and add up the amounts. Additionally, it should iterate through each item in the order and recursively call itself to calculate the tax for each item. \n\nProblem statement 3:\nCreate a protected PHP function that recalculates the total amount of an order. The function should update the "total" value of the order object by adding the values of "unitsTotal" and "adjustmentsTotal". If the resulting total amount is negative, it should be set to 0. If the order object has been assigned to the "order" property of the current object, the function should also call the "recalculateItemsTotal" method of the order object.', 'role': 'assistant'}}], 'created': 1680700427, 'id': 'chatcmpl-71xFLudkou0wUFSZ0WdmGYmKvGNvg', 'model': 'gpt-3.5-turbo-0301', 'object': 'chat.completion', 'usage': {'completion_tokens': 232, 'prompt_tokens': 604, 'total_tokens': 836}}
-
-                # print(response_2nd)
                 break
             except openai.error.OpenAIError as e:
                 logging.warning(f"OpenAIError: {e}.")
@@ -306,7 +270,6 @@ def generate_instruction_following_data(
         if example_id in data:
             data.pop(example_id)
 
-    # now let's generate new instructions!
     progress_bar = tqdm(total=num_instructions_to_generate)
 
     decoding_kwargs = dict(
@@ -321,15 +284,8 @@ def generate_instruction_following_data(
         num_requested_examples = min(request_batch_size * NUM_PROMPT_CODE_SNIPPETS, num_instructions_to_generate - keep)
         batch_examples_ids = random.sample(list(data.keys()), k=num_requested_examples)
         grouped_examples_ids = [batch_examples_ids[i:i+NUM_PROMPT_CODE_SNIPPETS] for i in range(0, num_requested_examples, NUM_PROMPT_CODE_SNIPPETS)]
-        # # filtering too long code snippets within the same group
-        # grouped_code_lengths = [sum(len(data[ex_id]["code"]) for ex_id in ex_ids) for ex_ids in grouped_examples_ids]
-        # all_lens.extend(grouped_code_lengths)
-        # grouped_examples_ids = [ex_ids for ex_ids, grouped_code_length in zip(grouped_examples_ids, grouped_code_lengths) if grouped_code_length < CODE_LENGTH_THRESHOLD]
-        # print("ahihi:", len(grouped_code_lengths))
         grouped_examples = [OrderedDict([(example_id, data[example_id]) for example_id in example_ids]) for example_ids in grouped_examples_ids]
         request_start = time.time()
-        # with concurrent.futures.ThreadPoolExecutor() as executor:
-        #     results = executor.map(one_call, grouped_examples, [decoding_kwargs]*len(grouped_examples))
         with multiprocessing.Pool() as p:
             for result in p.imap(partial(one_call, decoding_kwargs=decoding_kwargs), grouped_examples):
                 examples, call_1st_responses, call_2nd_responses, _num_requests = result
@@ -355,8 +311,6 @@ def generate_instruction_following_data(
                         example["id"] = ex_id
                         json.dump(example, f)
                         f.write("\n")
-                    # json.dump(examples, f, indent=4, default=str)
-                    # f.write("\n")
                 idx += 1
                 for response in call_1st_responses + call_2nd_responses:
                     count_tokens += response["usage"]["total_tokens"]
@@ -381,12 +335,6 @@ def parse_args():
 
 def main():
     args = parse_args()
-    if os.getlogin() == "hungquocto":
-        args.seed_data_dir = "/Users/hungquocto/ResearchProjects/CodeXGLUE_datasets/summarize/"
-    else:
-        args.seed_data_dir = "/cm/shared/hungtq29/datasets/2M_ver02/raw/partitions/"
-    # num_code_snippets = 3
-    # args.num_examples_per_language = 10000
     print("Loading data ...")
     seed_data = load_data(args.seed_data_dir, args.num_examples_per_language)
     print("Finished loading data.")
@@ -394,7 +342,6 @@ def main():
     generate_instruction_following_data(seed_data, 
                                         request_batch_size=args.request_batch_size,
                                         num_instructions_to_generate=args.num_instructions_to_generate,
-                                        # num_instructions_to_generate=50000,
                                         output_dir=args.output_dir,
                                         )
     print("Finished generating data ...")
