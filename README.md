@@ -105,7 +105,7 @@ We evaluate our models as well as reproduce other models' results on 2 benchmark
 
 
 ## Data Release
-We release our data as well as other data sources used for training our models
+We release our data as well as cite other data sources used for training our models
 - [Our Instruction Only Generation data](./data/raw-data/generated_data.jsonl)
 - [Code Apaca data](https://github.com/sahil280114/codealpaca/blob/master/data/code_alpaca_20k.json)
 - [Deepmind's CodeContests](https://huggingface.co/datasets/deepmind/code_contests) hosted on HuggingFace
