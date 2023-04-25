@@ -148,10 +148,7 @@ import torch
 from transformers import LlamaTokenizer, LlamaForCausalLM
 
 tokenizer = LlamaTokenizer.from_pretrained("minhngh/CodeCapybara")
-model = LlamaForCausalLM.from_pretrain("minhngh/CodeCapybara",
-									  load_in_8bit=True,
-									  dtype=torch.float16,
-									  device_map="auto")
+model = LlamaForCausalLM.from_pretrain("minhngh/CodeCapybara", load_in_8bit=True, dtype=torch.float16, device_map="auto")
 
 model.config.pad_token_id = tokenizer.pad_token_id = 0
 model.config.bos_token_id = 1
@@ -172,23 +169,16 @@ from transformers import LlamaTokenizer, LlamaForCausalLM
 from peft import PeftModel
 
 tokenizer = LlamaTokenizer.from_pretrained("decapoda-research/llama-7b-hf")
-model = LlamaForCausalLM.from_pretrained("decapoda-research/llama-7b-hf",
-									  load_in_8bit=True,
-									  dtype=torch.float16,
-									  device_map="auto")
-model = PeftModel.from_pretrained("hungquocto/CodeCapybara-LoRA",
-								 load_in_8bit=True,
-								 dtype=torch.float16,
-								 device_map="auto")
+model = LlamaForCausalLM.from_pretrained("decapoda-research/llama-7b-hf", load_in_8bit=True, dtype=torch.float16, device_map="auto")
+model = PeftModel.from_pretrained("hungquocto/CodeCapybara-LoRA", load_in_8bit=True, dtype=torch.float16, device_map="auto")
 
 model.config.pad_token_id = tokenizer.pad_token_id = 0
 model.config.bos_token_id = 1
 model.config.eos_token_id = 2
 
+model.eval()
 if torch.__version__ >= "2" and sys.platform != "win32":
 	model = torch.compile(model)
-
-model.half()
 ```
 ### Generate
 After loading model to your device, add the following script to generate prediction
@@ -201,9 +191,8 @@ input_ids = tokenizer(prompt)["input_ids"]
 generation_config = GenerationConfig(temperature=0.1,
 									top_k=40,
 									top_p=0.75)
-output_ids = model.generate(inputs,
-						   generation_config=generation_config,
-						   max_new_tokens=128)
+with torch.no_grad:
+	output_ids = model.generate(inputs, generation_config=generation_config, max_new_tokens=128)
 output = tokenizer.decode(output_ids, skip_special_tokens=True, ignore_tokenization_space=True)
 print(output)
 ```
