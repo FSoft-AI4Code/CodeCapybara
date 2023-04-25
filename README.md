@@ -29,8 +29,8 @@ We encourage you to contribute to CodeCapybara and help advance the field of cod
       - [DeepMind's Code Contests](#deepminds-code-contests)
     - [Instruction Tuning](#instruction-tuning)
   - [Results](#results)
-    - [HumanEval](#humaneval)
-    - [MBPP](#mbpp)
+    - [HumanEval Results](#humaneval-result)
+    - [MBPP Results](#mbpp-result)
   - [Data Release](#data-release)
   - [Checkpoint Release](#checkpoint-release)
   - [Installation](#installation)
@@ -38,6 +38,7 @@ We encourage you to contribute to CodeCapybara and help advance the field of cod
   - [Benchmarking](#benchmarking)
     - [HumanEval](#humaneval-1)
     - [MBPP](#mbpp-1)
+  - [Reproducing LLaMA results](reproducing-llama-results)
   - [Example Outputs](#example-outputs)
   - [Future Plans](#future-plans)
   - [Contributing](#contributing)
@@ -77,35 +78,34 @@ For the second source of data, our intention is to follow [Self-Instruct](https:
 We reuse the generated instruction data from [Code Alpaca](https://github.com/sahil280114/codealpaca/blob/master/data/code_alpaca_20k.json) to reduce API calling cost since what they did is similar to our purpose.
 
 #### [DeepMind's Code Contests](https://github.com/deepmind/code_contests)
-We also leverage the supervised code generation dataset. There are various code generation dataset with high quality and quantity, such as APPS (5,000 datapoints in train split), MBPP (500 datapoints in train split).
+We also leverage the supervised code generation dataset. There are various code generation dataset with high quality and quantity, such as APPS (5,000 problems in train split), MBPP (500 problems in train split).
 
-In this version, we select [DeepMind's Code Contests](https://github.com/deepmind/code_contests) dataset, which contains competitive programming problems with detailed description and test cases. The train split we employ to fine-tune our model contains approximately 13,000 datapoints.
+In this version, we select [DeepMind's Code Contests](https://github.com/deepmind/code_contests) dataset, which contains competitive programming problems with detailed description and test cases. The train split we employ to fine-tune our model contains 13,328 problems which results in 51,766 instruction-output pairs.
 
 ### Instruction Tuning
 We tried 2 approaches to fine-tune LLaMA-7B checkpoint on the collected data, including:
 - Full-parameter Fine-tuning
 - Parameter-efficient Fine-tuning with HuggingFace's PEFT
 
-Please refer to [Checkpoint Release] section for accessing to our checkpoints
+Please refer to [Checkpoint Release](#checkpoint-release) section for accessing to our checkpoints.
 
 ## Results
 
 We evaluate our models as well as reproduce other models' results on 2 benchmarks, HumanEval and MBPP. All numbers are reported in zero-shot settings.
 
-### HumanEval
+### HumanEval Results
 | Model |Base checkpoint | pass@1 | pass@10 | pass@100 |
 | - | - | - | -  | - |
 | LLaMA |  decapoda-research/llama-7b-hf | 10.70| 13.29 | **13.41** |
 | LLaMA | huggyllama/llama-7b  |9.7  | 12.66| 12.80 |
 | Alpaca-LoRA |  decapoda-research/llama-7b-hf | 8.00 | 10.00 | 10.37|
-| CodeCapybara-LoRa |  decapoda-research/llama-7b-hf | 9.61 | 11.62 | 12.02 |
+| CodeCapybara-LoRA |  decapoda-research/llama-7b-hf | 9.61 | 11.62 | 12.02 |
 | CodeCapybara | huggyllama/llama-7b | **11.10** | **13.33** | **13.41** |
 
-### MBPP
-
+### MBPP Results
 
 ## Data Release
-We release our data as well as cite other data sources used for training our models
+We release our data as well as other data sources used for training our models
 - [Our Instruction Only Generation data](./data/raw-data/generated_data.jsonl)
 - [Code Apaca data](https://github.com/sahil280114/codealpaca/blob/master/data/code_alpaca_20k.json)
 - [Deepmind's CodeContests](https://huggingface.co/datasets/deepmind/code_contests) hosted on HuggingFace
@@ -222,6 +222,15 @@ done
 python eval_mbpp.py --prediction_dir path/to/prediction/directory
 ```
 
+##  Reproducing LLaMA Results
+Since MetaAI released their official LLaMA checkpoints, there have been questions and efforts on reproducing their results on HumanEval and MBPP reported in [paper](https://arxiv.org/pdf/2302.13971.pdf). This repo wishes to reproduce LLaMA and other LLMs results on widely recognized Code Generation benchmarks.
+
+To evaluate a HuggingFace LLaMA checkpoint on HumanEval or MBPP,  please pass the values of `--base_model` and `--dataset_name` the corresponding model and benchmark in the [evaluation script example](#humaneval).
+
+You can also tweak hyperparameters e.i  `temperature`, `top-p`, `top-k` for trade-off between accuracy and diversity and in prediction. Tuning hyperparameters will lead to change in final results.Community is welcome for seeking optimal hyperparameter values.
+
+We are in our progress of evaluating LLaMA official checkpoints without HuggingFace format checkpoint conversion.
+
 ## Example Outputs
 
 ## Future Plans
@@ -238,4 +247,3 @@ Feel free to cite us
 	year = {2023},
 }
 ```
-
