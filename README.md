@@ -12,7 +12,7 @@
 We introduce CodeCapybara - A Code specialized Instruction-following Large Language Model. This repo also attempts to evaluate and reproduce performance results of existing LLMs for code, such as Llama, Alpaca and CodeAlpaca for code generation benchmarks (HumanEval and MBPP).
 
 - ***First attempt to reproduce of LLaMA results*** on widely recognized Code Generation benchmarks
-- CodeCapybara is fine-tuned from Llama 7B. Larger models will be available soon.
+- CodeCapybara is fine-tuned from Llama 7B. Larger models will be available soon. You can find our checkpoints at [this](#instruction-tuning).
 - We use ***our own dataset in larger scale and more diverse*** to fine-tune Llama under an instruction-tuning style.
 - ***Improved evaluation results on HumanEval*** in comparison to LLaMA, Alpaca and CodeAlpaca.
 - Full transparency with open source availability: ***all scripts and models are accessible to the community***.
@@ -20,17 +20,27 @@ We encourage you to contribute to CodeCapybara and help advance the field of cod
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Results](#results)
-- [Data Release]()
-- [Checkpoint Release]()
-- [Installation](#installation)
-- [Instruction Tuning](#instruction-tuning)
-- [Benchmarking](#benchmarking)
-- [Example Outputs](#example-outputs)
-- [Future Plans](future-plan)
-- [Contributing](#contributing)
-- [License](#license)
+- [CodeCapybara: Open Source LLaMA Model that Follow Instruction-Tuning for Code Generation.](#codecapybara-open-source-llama-model-that-follow-instruction-tuning-for-code-generation)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+    - [Data Collection](#data-collection)
+      - [Only Instruction Generation](#only-instruction-generation)
+      - [Code Alpaca](#code-alpaca)
+      - [DeepMind's Code Contests](#deepminds-code-contests)
+    - [Instruction Tuning](#instruction-tuning)
+  - [Results](#results)
+    - [HumanEval](#humaneval)
+    - [MBPP](#mbpp)
+  - [Data Release](#data-release)
+  - [Installation](#installation)
+  - [Instruction Tuning](#instruction-tuning-1)
+  - [Benchmarking](#benchmarking)
+    - [HumanEval](#humaneval-1)
+    - [MBPP](#mbpp-1)
+  - [Example Outputs](#example-outputs)
+  - [Future Plans](#future-plans)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Overview
 We follow several recent techniques of instruction tuning to collect data and train an instruction-following model with ability to generate executable code from human language description.
@@ -41,12 +51,12 @@ We can divide our process for training CodeyCapybara into two stages:
 
 ### Data Collection
 In this stage, we follow previous works to collect instruction data. To ensure the quality of the code data used in the fine-tuning stage, we make some modifications from data Self-Instruct data generation procedure.
-| Data source | No. samples |
+<!-- | Data source | No. samples |
 |-|-|
 |Only Instruction Generation| 20,574|
 |CodeAlpaca| 20,022 |
 |DeepMind's Code Contests| 13,328 |
-| **Total**| **53,924**|
+| **Total**| **53,924**| -->
 
 #### Only Instruction Generation
 To ensure the code quality for later use as targets in the fine-tuning step,  we leverage an unsupervised dataset that only contains code snippets crawled from open-sources. We then design a prompt to ask `gpt-3.5-turbo` to generate a corresponding instruction for each code snippet. In other words, to obtain a pair (instruction-output), we ask `gpt-3.5-turbo` to generate the instruction given the output as human written code snippet.
@@ -72,7 +82,7 @@ In this version, we select [DeepMind's Code Contests](https://github.com/deepmin
 
 ### Instruction Tuning
 We tried 2 approaches to fine-tune LLaMA-7B checkpoint on the collected data, including:
-- Full-parameter fine-tuning
+- Full-parameter fine-tuning. The checkpoint can be found at [HuggingFace](https://huggingface.co/minhngh/CodeCapybara).
 - HuggingFace's PEFT, same as [AlpacaLoRA](https://github.com/tloen/alpaca-lora#readme)
 
 ## Results
@@ -93,7 +103,6 @@ We evaluate our models as well as reproduce other models' results on 2 benchmark
 
 ## Data Release
 You can find our used datasets in the folder `data/raw-data`, namely `code_alpaca_20k.json` (from CodeAlpaca) and `generated_data.jsonl` (our own dataset).
-## Checkpoint Release
 
 ## Installation
 
