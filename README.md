@@ -34,11 +34,12 @@ We encourage you to contribute to CodeCapybara and help advance the field of cod
   - [Data Release](#data-release)
   - [Checkpoint Release](#checkpoint-release)
   - [Installation](#installation)
+  - [Usage](#usage)
   - [Instruction Tuning](#instruction-tuning-1)
   - [Benchmarking](#benchmarking)
     - [HumanEval](#humaneval-1)
     - [MBPP](#mbpp-1)
-  - [Reproducing LLaMA results](reproducing-llama-results)
+  - [Reproducing LLaMA Results](#reproducing-llama-results)
   - [Example Outputs](#example-outputs)
   - [Future Plans](#future-plans)
   - [Contributing](#contributing)
@@ -125,6 +126,87 @@ conda install pip -y
 pip install -r requirements.txt
 ```
 
+## Usage
+Let's define a function to convert `instruction` and `input` into a single prompt as input to our `model.generate`
+```python
+def generate_prompt(instruction, input=None):
+	# Templates used by Stanford Alpaca: https://github.com/tatsu-lab/stanford_alpaca
+	if input is not None:
+		prompt = f"Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\n{instruction}\n\n### Input:\n{input}\n\n### Response:"
+	else:
+		prompt = f"prompt_no_input": "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{instruction}\n\n### Response:"
+	return prompt
+```
+
+### Loading model
+You can choose to load full-parameter `CodeCapybara` or `CodeCapybara-LoRA`
+#### Loading CodeCapybara
+
+```python
+import sys
+import torch
+from transformers import LlamaTokenizer, LlamaForCausalLM
+
+tokenizer = LlamaTokenizer.from_pretrained("minhngh/CodeCapybara")
+model = LlamaForCausalLM.from_pretrain("minhngh/CodeCapybara",
+									  load_in_8bit=True,
+									  dtype=torch.float16,
+									  device_map="auto")
+
+model.config.pad_token_id = tokenizer.pad_token_id = 0
+model.config.bos_token_id = 1
+model.config.eos_token_id = 2
+
+if torch.__version__ >= "2" and sys.platform != "win32":
+	model = torch.compile(model)
+
+model.half()
+```
+
+#### Loading CodeCapybara-LoRA
+
+```python
+import sys
+import torch
+from transformers import LlamaTokenizer, LlamaForCausalLM
+from peft import PeftModel
+
+tokenizer = LlamaTokenizer.from_pretrained("decapoda-research/llama-7b-hf")
+model = LlamaForCausalLM.from_pretrained("decapoda-research/llama-7b-hf",
+									  load_in_8bit=True,
+									  dtype=torch.float16,
+									  device_map="auto")
+model = PeftModel.from_pretrained("hungquocto/CodeCapybara-LoRA",
+								 load_in_8bit=True,
+								 dtype=torch.float16,
+								 device_map="auto")
+
+model.config.pad_token_id = tokenizer.pad_token_id = 0
+model.config.bos_token_id = 1
+model.config.eos_token_id = 2
+
+if torch.__version__ >= "2" and sys.platform != "win32":
+	model = torch.compile(model)
+
+model.half()
+```
+### Generate
+After loading model to your device, add the following script to generate prediction
+```python
+instruction = "Write a Python program that prints the first 10 Fibonacci numbers"
+prompt = generate_prompt(instruction)
+
+input_ids = tokenizer(prompt)["input_ids"]
+
+generation_config = GenerationConfig(temperature=0.1,
+									top_k=40,
+									top_p=0.75)
+output_ids = model.generate(inputs,
+						   generation_config=generation_config,
+						   max_new_tokens=128)
+output = tokenizer.decode(output_ids, skip_special_tokens=True, ignore_tokenization_space=True)
+print(output)
+```
 ## Instruction Tuning
 We support 2 settings to fine-tune LLaMA models. In the first setting, we refine all the parameters using Fully Sharded Data Parallel, and for the rest, we currently utilize LoRA to adapt the models to the instruction tuning task. You can easily run such settings by the command
 ```bash
@@ -227,7 +309,7 @@ Since MetaAI released their official LLaMA checkpoints, there have been question
 
 To evaluate a HuggingFace LLaMA checkpoint on HumanEval or MBPP,  please pass the values of `--base_model` and `--dataset_name` the corresponding model and benchmark in the [evaluation script example](#humaneval).
 
-You can also tweak hyperparameters e.i  `temperature`, `top-p`, `top-k` for trade-off between accuracy and diversity and in prediction. Tuning hyperparameters will lead to change in final results.Community is welcome for seeking optimal hyperparameter values.
+You can also tweak hyperparameters i.e  `temperature`, `top-p`, `top-k` for trade-off between accuracy and diversity and in prediction. Tuning hyperparameters will lead to change in final results. Community is welcome for seeking optimal hyperparameter values.
 
 We are in our progress of evaluating LLaMA official checkpoints without HuggingFace format checkpoint conversion.
 
