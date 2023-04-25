@@ -32,6 +32,7 @@ We encourage you to contribute to CodeCapybara and help advance the field of cod
     - [HumanEval](#humaneval)
     - [MBPP](#mbpp)
   - [Data Release](#data-release)
+  - [Checkpoint Release](#checkpoint-release)
   - [Installation](#installation)
   - [Instruction Tuning](#instruction-tuning-1)
   - [Benchmarking](#benchmarking)
@@ -82,8 +83,10 @@ In this version, we select [DeepMind's Code Contests](https://github.com/deepmin
 
 ### Instruction Tuning
 We tried 2 approaches to fine-tune LLaMA-7B checkpoint on the collected data, including:
-- Full-parameter fine-tuning. The checkpoint can be found at [HuggingFace](https://huggingface.co/minhngh/CodeCapybara).
-- HuggingFace's PEFT, same as [AlpacaLoRA](https://github.com/tloen/alpaca-lora#readme)
+- Full-parameter Fine-tuning
+- Parameter-efficient Fine-tuning with HuggingFace's PEFT
+
+Please refer to [Checkpoint Release] section for accessing to our checkpoints
 
 ## Results
 
@@ -93,22 +96,33 @@ We evaluate our models as well as reproduce other models' results on 2 benchmark
 | Model |Base checkpoint | pass@1 | pass@10 | pass@100 |
 | - | - | - | -  | - |
 | LLaMA |  decapoda-research/llama-7b-hf | 10.70| 13.29 | **13.41** |
-| LLaMA |  |9.7  | 12.66| 12.80 |
+| LLaMA | huggyllama/llama-7b  |9.7  | 12.66| 12.80 |
 | Alpaca-LoRA |  decapoda-research/llama-7b-hf | 8.00 | 10.00 | 10.37|
 | CodeCapybara-LoRa |  decapoda-research/llama-7b-hf | 9.61 | 11.62 | 12.02 |
-| CodeCapybara |  | **11.10** | **13.33** | **13.41** |
+| CodeCapybara | huggyllama/llama-7b | **11.10** | **13.33** | **13.41** |
 
 ### MBPP
 
 
 ## Data Release
-You can find our used datasets in the folder `data/raw-data`, namely `code_alpaca_20k.json` (from CodeAlpaca) and `generated_data.jsonl` (our own dataset).
+We release our data as well as other data sources used for training our models
+- [Our Instruction Only Generation data](./data/raw-data/generated_data.jsonl)
+- [Code Apaca data](https://github.com/sahil280114/codealpaca/blob/master/data/code_alpaca_20k.json)
+- [Deepmind's CodeContests](https://huggingface.co/datasets/deepmind/code_contests) hosted on HuggingFace
+<!You can find our used datasets in the folder `data/raw-data`, namely `code_alpaca_20k.json` (from CodeAlpaca) and `generated_data.jsonl` (our own dataset).!>
+
+## Checkpoint Release
+We release our checkpoints hosted on HuggingFace
+- [CodeCapybara](https://huggingface.co/minhngh/CodeCapybara) - Full-parameter Fine-tuning
+- [CodeCapypara-LoRA](https://huggingface.co/hungquocto/CodeCapybara-LoRA) - Parameter-efficient Fine-tuning
 
 ## Installation
 
 ```bash
 conda create -n codecapybara -y
 conda activate codecapybara
+conda install pip -y
+pip install -r requirements.txt
 ```
 
 ## Instruction Tuning
@@ -158,7 +172,7 @@ do
     python -m torch.distributed.run --nprocs ${N_PROCS} generate.py \
         --output_dir path/to/prediction/directory \
         --dataset_name 'humaneval' \
-        --base_model 'decapoda-research/llama-7b-hf' \
+        --base_model 'minhngh/CodeCapybara' \
         --lora_weights '' \
         --batch_size 1 \
         --num_return_sequences 20 \
@@ -194,7 +208,7 @@ do
     python -m torch.distributed.run --nprocs ${N_PROCS} generate.py \
         --output_dir path/to/prediction/directory \
         --dataset_name 'mbpp' \
-        --base_model 'decapoda-research/llama-7b-hf' \
+        --base_model 'minhngh/CodeCapybara' \
         --lora_weights '' \
         --batch_size 1 \
         --num_return_sequences 20 \
@@ -224,3 +238,4 @@ Feel free to cite us
 	year = {2023},
 }
 ```
+
