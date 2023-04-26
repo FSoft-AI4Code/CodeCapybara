@@ -119,7 +119,7 @@ We release our data as well as other data sources used for training our models
 ## Checkpoint Release
 We release our checkpoints hosted on HuggingFace
 - [CodeCapybara](https://huggingface.co/Fsoft-AIC/CodeCapybara) - Full-parameter Fine-tuning
-- [CodeCapypara-LoRA](https://huggingface.co/hungquocto/CodeCapybara-LoRA) - Parameter-efficient Fine-tuning
+- [CodeCapypara-LoRA](https://huggingface.co/Fsoft-AIC/CodeCapybara-LoRA) - Parameter-efficient Fine-tuning
 
 ## Installation
 
@@ -151,17 +151,19 @@ import sys
 import torch
 from transformers import LlamaTokenizer, LlamaForCausalLM
 
-tokenizer = LlamaTokenizer.from_pretrained("minhngh/CodeCapybara")
-model = LlamaForCausalLM.from_pretrain("minhngh/CodeCapybara", load_in_8bit=True, dtype=torch.float16, device_map="auto")
+tokenizer = LlamaTokenizer.from_pretrained("Fsoft-AIC/CodeCapybara")
+model = LlamaForCausalLM.from_pretrain("Fsoft-AIC/CodeCapybara",
+					load_in_8bit=True,
+					dtype=torch.float16,
+					device_map="auto")
 
 model.config.pad_token_id = tokenizer.pad_token_id = 0
 model.config.bos_token_id = 1
 model.config.eos_token_id = 2
 
+model.eval()
 if torch.__version__ >= "2" and sys.platform != "win32":
 	model = torch.compile(model)
-
-model.half()
 ```
 
 #### Loading CodeCapybara-LoRA
@@ -177,7 +179,7 @@ model = LlamaForCausalLM.from_pretrained("decapoda-research/llama-7b-hf",
 					 load_in_8bit=True,
 					 dtype=torch.float16,
 					 device_map="auto")
-model = PeftModel.from_pretrained("hungquocto/CodeCapybara-LoRA",
+model = PeftModel.from_pretrained("Fsoft-AIC/CodeCapybara-LoRA",
 				  load_in_8bit=True,
 				  dtype=torch.float16,
 				  device_map="auto")
@@ -255,7 +257,7 @@ do
     python -m torch.distributed.run --nprocs ${N_PROCS} generate.py \
         --output_dir path/to/prediction/directory \
         --dataset_name 'humaneval' \
-        --base_model 'minhngh/CodeCapybara' \
+        --base_model 'Fsoft-AIC/CodeCapybara' \
         --lora_weights '' \
         --batch_size 1 \
         --num_return_sequences 20 \
@@ -291,7 +293,7 @@ do
     python -m torch.distributed.run --nprocs ${N_PROCS} generate.py \
         --output_dir path/to/prediction/directory \
         --dataset_name 'mbpp' \
-        --base_model 'minhngh/CodeCapybara' \
+        --base_model 'Fsoft-AIC/CodeCapybara' \
         --lora_weights '' \
         --batch_size 1 \
         --num_return_sequences 20 \
