@@ -29,16 +29,20 @@ We encourage you to contribute to CodeCapybara and help advance the field of cod
       - [DeepMind's Code Contests](#deepminds-code-contests)
     - [Instruction Tuning](#instruction-tuning)
   - [Results](#results)
-    - [HumanEval Results](#humaneval-result)
-    - [MBPP Results](#mbpp-result)
+    - [HumanEval Results](#humaneval-results)
+    - [MBPP Results](#mbpp-results)
   - [Data Release](#data-release)
   - [Checkpoint Release](#checkpoint-release)
   - [Installation](#installation)
   - [Usage](#usage)
+    - [Loading model](#loading-model)
+      - [Loading CodeCapybara](#loading-codecapybara)
+      - [Loading CodeCapybara-LoRA](#loading-codecapybara-lora)
+    - [Generate](#generate)
   - [Instruction Tuning](#instruction-tuning-1)
   - [Benchmarking](#benchmarking)
-    - [HumanEval](#humaneval-1)
-    - [MBPP](#mbpp-1)
+    - [HumanEval](#humaneval)
+    - [MBPP](#mbpp)
   - [Reproducing LLaMA Results](#reproducing-llama-results)
   - [Example Outputs](#example-outputs)
   - [Future Plans](#future-plans)
@@ -114,7 +118,7 @@ We release our data as well as other data sources used for training our models
 
 ## Checkpoint Release
 We release our checkpoints hosted on HuggingFace
-- [CodeCapybara](https://huggingface.co/minhngh/CodeCapybara) - Full-parameter Fine-tuning
+- [CodeCapybara](https://huggingface.co/Fsoft-AIC/CodeCapybara) - Full-parameter Fine-tuning
 - [CodeCapypara-LoRA](https://huggingface.co/hungquocto/CodeCapybara-LoRA) - Parameter-efficient Fine-tuning
 
 ## Installation

@@ -125,48 +125,32 @@ def train_one_epoch(stats, loader, model, optimizer, scheduler = None):
     model.train()
     acc_loss, acc_perplexity, count = 0, 0, 0
     criterion = nn.CrossEntropyLoss()
-    if local_rank == 0:
-        bar = tqdm(loader, total = dataset_size)
-        for input_ids, output_ids, mask in bar:
-            input_ids = input_ids.cuda()
-            output_ids = output_ids.cuda()
-            mask = mask.cuda()
-            optimizer.zero_grad()
-            outputs = model(input_ids = input_ids, attention_mask = mask)
-            logits = outputs.logits.transpose(1, 2)
-            loss = criterion(logits, output_ids)
-            loss.backward()
-            optimizer.step()
-            if scheduler is not None: scheduler.step()
-            loss_cpu = loss.detach().cpu().item()
-            acc_loss += loss_cpu
-            perplexity = math.exp(loss_cpu)
-            if local_rank == 0 and use_wandb:
+    bar = tqdm(loader, total = dataset_size) if local_rank == 0 else loader
+    for input_ids, output_ids, mask in bar:
+        input_ids = input_ids.cuda()
+        output_ids = output_ids.cuda()
+        mask = mask.cuda()
+        optimizer.zero_grad()
+        outputs = model(input_ids = input_ids, attention_mask = mask)
+        logits = outputs.logits.transpose(1, 2)
+        loss = criterion(logits, output_ids)
+        loss.backward()
+        optimizer.step()
+        if scheduler is not None: scheduler.step()
+        loss_cpu = loss.detach().cpu().item()
+        acc_loss += loss_cpu
+        perplexity = math.exp(loss_cpu)
+        acc_perplexity += perplexity
+        count += 1
+        if local_rank == 0:
+            bar.set_description(f'loss: {loss_cpu: .4f} perplexity: {perplexity: .4f}')
+            if use_wandb:
                 wandb.log({
                     'loss': loss_cpu,
                     'perplexity': perplexity,
                     'lr': optimizer.param_groups[0]['lr']
                 })
-            acc_perplexity += perplexity
-            count += 1
-            bar.set_description(f'loss: {loss_cpu: .4f} perplexity: {perplexity: .4f}')
-    else:   
-        for input_ids, output_ids, mask in loader:
-            input_ids = input_ids.cuda()
-            output_ids = output_ids.cuda()
-            mask = mask.cuda()
-            optimizer.zero_grad()
-            outputs = model(input_ids = input_ids, attention_mask = mask, labels = output_ids)
-            logits = outputs.logits.transpose(1, 2)
-            loss = criterion(logits, output_ids)
-            loss.backward()
-            optimizer.step()
-            if scheduler is not None: scheduler.step()
-            loss_cpu = loss.detach().cpu().item()
-            acc_loss += loss_cpu
-            perplexity = math.exp(loss_cpu)
-            acc_perplexity += perplexity
-            count += 1
+
     return acc_loss / count, acc_perplexity / count
  
 
@@ -177,33 +161,20 @@ def validate_one_epoch(stats, loader, model):
 
     acc_loss, acc_perplexity, count = 0, 0, 0
     criterion = nn.CrossEntropyLoss()
-    if local_rank == 0:
-        bar = tqdm(loader, total = dataset_size)
-        for input_ids, output_ids, mask in bar:
-            input_ids = input_ids.cuda()
-            output_ids = output_ids.cuda()
-            mask = mask.cuda()
-            outputs = model(input_ids = input_ids, attention_mask = mask)
-            logits = outputs.logits.transpose(1, 2)
-            loss = criterion(logits, output_ids)
-            loss_cpu = loss.cpu().item()
-            acc_loss += loss_cpu
-            perplexity = math.exp(loss_cpu)
-            acc_perplexity += perplexity
-            count += 1
-    else:
-        for input_ids, output_ids, mask in loader:
-            input_ids = input_ids.cuda()
-            output_ids = output_ids.cuda()
-            mask = mask.cuda()
-            outputs = model(input_ids = input_ids, attention_mask = mask)
-            logits = outputs.logits.transpose(1, 2)
-            loss = criterion(logits, output_ids)
-            loss_cpu = loss.cpu().item()
-            acc_loss += loss_cpu
-            perplexity = math.exp(loss_cpu)
-            acc_perplexity += perplexity
-            count += 1
+    bar = tqdm(loader, total = dataset_size) if local_rank == 0 else loader
+    for input_ids, output_ids, mask in bar:
+        input_ids = input_ids.cuda()
+        output_ids = output_ids.cuda()
+        mask = mask.cuda()
+        outputs = model(input_ids = input_ids, attention_mask = mask)
+        logits = outputs.logits.transpose(1, 2)
+        loss = criterion(logits, output_ids)
+        loss_cpu = loss.cpu().item()
+        acc_loss += loss_cpu
+        perplexity = math.exp(loss_cpu)
+        acc_perplexity += perplexity
+        count += 1
+
     return acc_loss / count, acc_perplexity / count
 
 def main():
@@ -281,20 +252,18 @@ def main():
             display_params(model)
         if model_data is not None:
             model.load_state_dict(model_data)
-        model = model.cuda()
         
         llama_auto_wrap_policy = functools.partial(
-        transformer_auto_wrap_policy,
-        transformer_layer_cls={
-            LlamaDecoderLayer,
-            },
+            transformer_auto_wrap_policy,
+            transformer_layer_cls = {
+                LlamaDecoderLayer,
+                },
         )
        
         model = FullyShardedDataParallel(
             model,
             auto_wrap_policy=llama_auto_wrap_policy,
-            cpu_offload=CPUOffload(offload_params=True),
-            sync_module_states = True
+            device_id = torch.cuda.current_device()
         )
 
         save_checkpoint = save_fsdp_checkpoint
